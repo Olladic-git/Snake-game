@@ -4,14 +4,14 @@
     display: block;
 }
 
-
 .popup{
-    position: fixed;
-    width: 100%;
-    height: 100%;
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    margin: -311px auto;
+    width: 300px;
+    height: 300px;
     background-color: rgba(0, 0, 0, 0.8);
-    top: 0;
-    left: 0;
 }
 
 .hidden{
