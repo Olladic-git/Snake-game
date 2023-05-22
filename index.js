@@ -1,21 +1,26 @@
 const canvas = document.getElementById('game-canvas');
 const context = canvas.getContext('2d');
 
+const popUp = document.getElementById('popup');
+const popUpButton = document.getElementById('popup_button');
+let isPopUpOpen = false;
+
 const CELL_WIDTH = 15;
 const CELL_HEIGHT = 15;
 const GRID_WIDTH = Math.floor(canvas.width / CELL_WIDTH);
 const GRID_HEIGHT = Math.floor(canvas.height / CELL_HEIGHT);
 
-const SPEED = 1;
-
 //direction
-
 const 
     UP = 'UP'
     DOWN = 'DOWN'
     LEFT = 'LEFT'
     RIGHT = 'RIGHT';
 
+const SPEED = 1;
+
+const COLOR_GREY = 'rgba(76, 76, 76, 0.4)';
+const COLOR_LIGHT = 'rgba(154, 154, 154, 0.4)';
 
 let snake;
 let apple;
@@ -25,25 +30,14 @@ let snakeGrowthPosition;
 let changingDirection;
 
 function initialize() {
-    snake = {
-        direction: RIGHT,
-        head: {
-            x: 4, y: 4
-        },
-        body: [
-            {x: 4, y: 5},
-            {x: 4, y: 6}
-        ]
-    }
-    changingDirection = snake.direction;
+    generateSnake();
     generateApple();
 }
 
 function gameLoop() {
     updateSnake();
     if (isGameOver()) {
-        showPopUp();
-        clearInterval(gameLoopInterval) 
+        endGame();
         return;
     }
     updateApple();
@@ -59,17 +53,19 @@ function render() {
     }
 }
 
-function drawSnake() {
-
-    //draw head
-    context.fillStyle = 'blue';
-    context.fillRect(snake.head.x * CELL_WIDTH, snake.head.y * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
-
-    //draw body
-    for(segment of snake.body) {
-        context.fillStyle = 'green';
-        context.fillRect(segment.x * CELL_WIDTH, segment.y * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
+function generateSnake() {
+    snake = {
+        direction: RIGHT,
+        head: {
+            x: 4, y: 4
+        },
+        body: [
+            {x: 4, y: 5},
+            {x: 4, y: 6}
+        ]
     }
+
+    changingDirection = snake.direction;
 }
 
 function updateSnake() {
@@ -77,35 +73,47 @@ function updateSnake() {
     moveSnake();
 }
 
-function drawGrid() {
-        for (let i = 0; i < GRID_HEIGHT; i++) {
-          for (let j = 0; j < GRID_WIDTH; j++) {
+function drawSnake() {
+    //draw head
+    context.fillStyle = 'blue';
+    context.fillRect(snake.head.x * CELL_WIDTH, snake.head.y * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
 
+    //draw body
+    for (segment of snake.body) {
+        context.fillStyle = 'green';
+        context.fillRect(segment.x * CELL_WIDTH, segment.y * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
+    }
+}
+
+
+function drawGrid() {
+    for (let i = 0; i < GRID_HEIGHT; i++) {
+      for (let j = 0; j < GRID_WIDTH; j++) {
             if (i % 2 !== 0 && j % 2 !== 0) {
-                context.fillStyle = 'rgba(76, 76, 76, 0.4)';
+                context.fillStyle = COLOR_GREY;
             } else if (i % 2 == 0 && j % 2 == 0) {
-                context.fillStyle = 'rgba(76, 76, 76, 0.4)';
+                context.fillStyle = COLOR_GREY;
             } else {
-                context.fillStyle = 'rgba(154, 154, 154, 0.4)';
+                context.fillStyle = COLOR_LIGHT;
             }
             context.fillRect(j * CELL_WIDTH, i * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
         }
     }
-           
 }
 
 function moveSnake() {
     const velocity = calculateVelocity();
+
     let prevSegmentPosition = {
         x: snake.head.x, y: snake.head.y
-    }
+    };
 
     //move head
     snake.head.x += velocity.x;
     snake.head.y += velocity.y;
 
     //move body 
-    for(const segment of snake.body){
+    for (const segment of snake.body) {
         const currentSegmentPosition = {
             x: segment.x, y: segment.y
         };
@@ -128,69 +136,56 @@ function calculateVelocity() {
             return {x: 0, y: SPEED};
         case LEFT: 
             return {x: -SPEED, y: 0};
-
         default: 
             throw new Error('Unknown direction' + snake.direction);
-        
     }
 }
 
 function handleKeyDown(event) {
-    console.log("key down");
-    if (event.key == 'a') {
+    if (event.code == 'KeyA') {
        changingDirection = LEFT;
     }
-    if (event.key == 'd') {
+    if (event.code == 'KeyD') {
         changingDirection = RIGHT;
     }
-    if (event.key == 'w') {
+    if (event.code == 'KeyW') {
         changingDirection = UP;
     }
-    if (event.key == 's') {
+    if (event.code == 'KeyS') {
         changingDirection = DOWN;
     }
-
 }
 
 function updateDirection() {
-    if(changingDirection == UP && (snake.direction == RIGHT || snake.direction == LEFT)) {
+    if (changingDirection == UP && (snake.direction == RIGHT || snake.direction == LEFT)) {
         snake.direction = changingDirection;
     }
-    if(changingDirection == DOWN && (snake.direction == RIGHT || snake.direction == LEFT)) {
+    if (changingDirection == DOWN && (snake.direction == RIGHT || snake.direction == LEFT)) {
         snake.direction = changingDirection;
     }
-    if(changingDirection == LEFT && (snake.direction == UP || snake.direction == DOWN)) {
+    if (changingDirection == LEFT && (snake.direction == UP || snake.direction == DOWN)) {
         snake.direction = changingDirection;
     }
-    if(changingDirection == RIGHT && (snake.direction == UP || snake.direction == DOWN)) {
+    if (changingDirection == RIGHT && (snake.direction == UP || snake.direction == DOWN)) {
         snake.direction = changingDirection;
     }
     return;
 }
 
-
-const min = {
-    x: 0, y: 0
-}
-const max = {
-    x: CELL_WIDTH, y: CELL_HEIGHT
-}
-
 function generateAppleCoordinate() {
     return {
-        x: Math.floor(Math.random() * (max.x - min.x + 1)) + min.x,
-        y: Math.floor(Math.random() * (max.y - min.y + 1)) + min.y
+        x: Math.floor(Math.random() * (CELL_WIDTH - 0 + 1)) + 0,
+        y: Math.floor(Math.random() * (CELL_HEIGHT - 0 + 1)) + 0
     }
-
 }
 
 function checkAppleCoordinate(appleX, appleY) {
-    if(appleX === snake.head.x && appleY === snake.head.y) {
+    if (appleX === snake.head.x && appleY === snake.head.y) {
         return true;
     }
 
-    for(element of snake.body) {
-        if(element.x === appleX && element.y === appleY) {
+    for (element of snake.body) {
+        if (element.x === appleX && element.y === appleY) {
             return true;
         }
     }
@@ -198,13 +193,13 @@ function checkAppleCoordinate(appleX, appleY) {
 
 function generateApple() {
     let coordinates = generateAppleCoordinate();
+
     while (checkAppleCoordinate(coordinates.x, coordinates.y)) {
         coordinates = generateAppleCoordinate();
     }
 
-    apple = { x: coordinates.x, y: coordinates.y }
+    apple = { x: coordinates.x, y: coordinates.y };
 }
-
 
 function drawApple() {
     context.fillStyle = 'purple';
@@ -212,7 +207,7 @@ function drawApple() {
 }
 
 function updateApple() {
-    if(apple.x === snake.head.x && apple.y === snake.head.y) {
+    if (apple.x === snake.head.x && apple.y === snake.head.y) {
         growSnake();
         generateApple();
     }
@@ -241,22 +236,18 @@ function checkTheBody() {
     return false;
 }
 
-const popUp = document.getElementById('popup');
-const popUpButton = document.getElementById('popup_button')
-let isOpen = false;
 function showPopUp() {
-    if (isGameOver()){
+    if (isGameOver()) {
         popUp.classList.remove('hidden');
         popUp.classList.add('open');
-        isOpen = true;
+        isPopUpOpen = true;
     }
 }
 
 function hidePopUp() {
-    if (isOpen === true){
+    if (isPopUpOpen === true) {
         popUp.classList.remove('open');
         popUp.classList.add('hidden');
-        isOpen = false;
     }
 }
 
@@ -269,13 +260,18 @@ function clearCanvas() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-window.addEventListener('keydown', handleKeyDown);
-popUpButton.addEventListener('click', tryAgain)
-
 function startGame() {
     initialize();
     render();
     gameLoopInterval = setInterval(gameLoop, 500);
 }
+
+function endGame() {
+    showPopUp();
+    clearInterval(gameLoopInterval);
+}
+
+window.addEventListener('keydown', handleKeyDown);
+popUpButton.addEventListener('click', tryAgain);
 
 startGame();
