@@ -1,26 +1,24 @@
+import { 
+    CELL_HEIGHT,
+    CELL_WIDTH,
+    UP, 
+    DOWN, 
+    RIGHT, 
+    LEFT, 
+    SPEED, 
+    COLOR_GREY, 
+    COLOR_LIGHT
+} from './constants.js';
+
 const canvas = document.getElementById('game-canvas');
 const context = canvas.getContext('2d');
 
 const popUp = document.getElementById('popup');
 const popUpButton = document.getElementById('popup_button');
 let isPopUpOpen = false;
-
-const CELL_WIDTH = 15;
-const CELL_HEIGHT = 15;
 const GRID_WIDTH = Math.floor(canvas.width / CELL_WIDTH);
 const GRID_HEIGHT = Math.floor(canvas.height / CELL_HEIGHT);
 
-//direction
-const 
-    UP = 'UP'
-    DOWN = 'DOWN'
-    LEFT = 'LEFT'
-    RIGHT = 'RIGHT';
-
-const SPEED = 1;
-
-const COLOR_GREY = 'rgba(76, 76, 76, 0.4)';
-const COLOR_LIGHT = 'rgba(154, 154, 154, 0.4)';
 
 let snake;
 let apple;
@@ -79,7 +77,7 @@ function drawSnake() {
     context.fillRect(snake.head.x * CELL_WIDTH, snake.head.y * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
 
     //draw body
-    for (segment of snake.body) {
+    for (const segment of snake.body) {
         context.fillStyle = 'green';
         context.fillRect(segment.x * CELL_WIDTH, segment.y * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
     }
@@ -184,7 +182,7 @@ function checkAppleCoordinate(appleX, appleY) {
         return true;
     }
 
-    for (element of snake.body) {
+    for (const element of snake.body) {
         if (element.x === appleX && element.y === appleY) {
             return true;
         }
@@ -228,7 +226,7 @@ function isGameOver() {
 }
 
 function checkTheBody() {
-    for (segment of snake.body){
+    for (const segment of snake.body){
         if (segment.x === snake.head.x && segment.y === snake.head.y){
             return true;
         }
