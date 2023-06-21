@@ -10,6 +10,8 @@ import {
     COLOR_LIGHT
 } from './constants.js';
 
+import './index.css'
+
 const canvas = document.getElementById('game-canvas');
 const context = canvas.getContext('2d');
 
