@@ -1,8 +1,9 @@
 import React from "react";
-import ReactDOM  from "react-dom";
+import  { createRoot } from 'react-dom/client';
 import SnakeGameApp from "./game/snake-game-app";
 import './index.css';
 
-const root = document.getElementById('root');
+const domNode = document.getElementById('root')
+const root = createRoot(domNode);
 
-ReactDOM.render(<SnakeGameApp/>, root);
+root.render(<SnakeGameApp/>);
